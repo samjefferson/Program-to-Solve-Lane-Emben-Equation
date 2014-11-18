@@ -171,7 +171,90 @@ for n in range(0,6):
 		print massArray[n][1000]
 		print radiusArray[n][1000]
 		print logDensityArray[n][0]
-			
+
+sSMMass = []
+sSMRadius = []
+sSMTemp = []
+sSMDens = []
+sSMPressure = []
+f = open("SSM.txt", "r")
+
+readCounter = 0
+
+fileLines = f.read().splitlines()
+
+for q in range(0,len(fileLines)):
+	readList = list(fileLines[q])
+	one = []
+	two = []
+	three = []
+	threeE = []
+	four = []
+	fourE = []
+	five = []
+	fiveE = []
+	
+	for pA in range(1, 10):
+		one.append(readList[pA])
+		
+	print float("".join(one))
+	
+	sSMMass.append(float("".join(one)))
+	
+	for pB in range(12, 19):
+		two.append(readList[pB])
+	
+	sSMRadius.append(float("".join(two)))
+	
+	for pC in range(21, 26):
+		three.append(readList[pC])
+		
+	for pCE in range(28,30):
+		threeE.append(readList[pCE])
+	
+	cExp = int("".join(threeE))
+	if readList[27] == "-":
+		cExp = -cExp
+	
+	
+	#this joins the characters into strings, converts to float
+	sSMTemp.append(math.log10(float("".join(three))*(10**cExp)))
+	
+	for pD in range(32, 37):
+		four.append(readList[pD])
+		
+	for pDE in range(39,41):
+		fourE.append(readList[pDE])
+	
+	dExp = int("".join(fourE))
+	if readList[38] == "-":
+		dExp = -dExp
+	
+	#this joins the characters into strings, converts to float multiplied by 1000 to conver g/cm^3 into kg/m^3
+	sSMDens.append(math.log10(1000*(float("".join(four))*10**dExp))) 
+	
+	for pE in range(43, 48):
+		five.append(readList[pE])
+		
+	for pEE in range(50,52):
+		fiveE.append(readList[pEE])
+	
+	eExp = int("".join(fiveE))
+	if readList[49] == "-":
+		eExp = -eExp
+		
+	#this joins the characters into strings, converts to float
+	sSMPressure.append(math.log10((float("".join(five)))*10**eExp))
+	
+	
+
+		
+	
+	
+
+
+
+
 #Below is the plotting of the lane-emden graph		
 fig, aa = plt.subplots()
 aa.plot(dRArray[0], dDArray[0], color = "purple", label = "n=0")
@@ -195,6 +278,7 @@ ab.plot(radiusArray[1], massArray[1], color = "orange", label = "n=1")
 ab.plot(radiusArray[2], massArray[2], color = "green", label = "n=2")
 ab.plot(radiusArray[3], massArray[3], color = "red", label = "n=3")
 ab.plot(radiusArray[4], massArray[4], color = "blue", label = "n=4")
+ab.plot(sSMRadius, sSMMass, color = "black", label = "SSM")
 
 ab.set_xlim(0,1)
 ab.set_ylim(0,1)
@@ -212,6 +296,7 @@ ac.plot(radiusArray[1], logDensityArray[1], color = "orange", label = "n=1")
 ac.plot(radiusArray[2], logDensityArray[2], color = "green", label = "n=2")
 ac.plot(radiusArray[3], logDensityArray[3], color = "red", label = "n=3")
 ac.plot(radiusArray[4], logDensityArray[4], color = "blue", label = "n=4")
+ac.plot(sSMRadius, sSMDens, color = "black", label = "SSM")
 
 ac.set_xlim(0,1)
 ac.set_ylim(0,6)
@@ -229,6 +314,7 @@ ad.plot(radiusArray[1], logPressureArray[1], color = "orange", label = "n=1")
 ad.plot(radiusArray[2], logPressureArray[2], color = "green", label = "n=2")
 ad.plot(radiusArray[3], logPressureArray[3], color = "red", label = "n=3")
 ad.plot(radiusArray[4], logPressureArray[4], color = "blue", label = "n=4")
+ad.plot(sSMRadius, sSMPressure, color = "black", label = "SSM")
 
 ad.set_xlim(0,1)
 ad.set_ylim(0,20)
