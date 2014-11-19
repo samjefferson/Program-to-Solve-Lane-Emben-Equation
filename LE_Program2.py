@@ -1,48 +1,80 @@
 import matplotlib.pyplot as plt
 import math
-dDArray = []
-dRArray = []
-firstDifArray = []
-massArray = []
-radiusArray = []
-logDensityArray = []
-logPressureArray = []
 
+#Below is the beginning of the multi-dimensional array/lists for the lane-emden numerical integration.
+
+#dimensionless density list
+dDArray = []
+#dimensionless radius list
+dRArray = []
+#list to store the value of the differential of dimensionless density 
+firstDifArray = []
+
+
+#Below is the beginning of the multi-dimensional array/lists for the calculations of stellar properties for comparision with the Standard Solar Model.
+
+#Mass list
+massArray = []
+#Radius list
+radiusArray = []
+#log10 Density list
+logDensityArray = []
+#log10 Pressure list
+logPressureArray = []
+#log10 Temperature list
+logTemperatureArray = []
+
+
+#Below is the lane-emden numerical integration.
+
+#The integration must be repeated six times for n values 0,1,2,3,4,5.  This is done with the for loop below.
 for n in range(0,6):
+	#Here are some variable which are required for the integration
+	#dimensionless density i 
 	dDi = 1
-	rocDD = 0
+	#the differential of Dimensionaless density
+	dDD = 0
+	#dimensionless radius i (a very small number is used instead of 0) 
 	dRi = 0.00001
+	#delta dimensionless radius (the change in)
 	ciDR = 0.001
+	#this variable is set to the intial dRi value and can be used later to take away the 0.00001 if needed
 	dRiLocked = dRi
 	
+	#now another list is append into an the next available index of the lists defined above to add a dimension
 	dDArray.append([])
 	dRArray.append([])
 	firstDifArray.append([])
+	#the counter is used to stop the integration continuing indefinitely at n = 5 as the n = 5 curve tends towards zero, never actually reaching it
 	counter = 0
+	
+	#The while loop below runs the intergration until each n value drops below 0, or in the case of n = 5, 20000 times. 
 	while (dDi > -0.001)&(counter<20000):
+		#this increases the counter 
 		counter+=1
+		#here the dimensionaless values are appended into the list for the corresponding value of n
 		dDArray[n].append(dDi)
 		dRArray[n].append(dRi)
-		firstDifArray[n].append(rocDD)
-		 
-		varOne = 2/dRi
-		varOne = varOne * rocDD
-		varOne = varOne + dDi**n
+		firstDifArray[n].append(dDD)
+		#the calculation below uses the LE equation to alter the values at an increase in dR of 0.001 (ciDR) 
+		lETemp = 2/dRi
+		lETemp = lETemp * dDD
+		lETemp = lETemp + dDi**n
 		
-		varOne = varOne * ciDR
-		varOne = rocDD-varOne
+		lETemp = lETemp * ciDR
+		lETemp = dDD-lETemp
 		
 		
-		rocDD = varOne
+		dDD = lETemp
 		
-		varOne = varOne * ciDR
-		varOne = varOne + dDi
-		dDi = varOne
+		lETemp = lETemp * ciDR
+		lETemp = lETemp + dDi
+		dDi = lETemp
 		dRi = dRi + ciDR
 	
 		
 	
-	#Below is the linear interpolation for n values 0 to 4
+	#Below is the linear interpolation for n values 0 to 4 (n=5 doesnt have cross the x-axis)
 	
 	if n!=5:
 		#the y0 variable will be the minimum positive value of y produced by the program
@@ -70,7 +102,7 @@ for n in range(0,6):
 		
 		
 		#finally the program prints the value of x when y=0 to 3 decimal place
-		print round(x, 3)
+		
 		
 		#PLOTTING GRAPH OF MASS VS RADIUS (for sun)
 		
@@ -84,12 +116,12 @@ for n in range(0,6):
 		
 		#central density must now be calculated as it is a term in the equation linking mass and radius
 		#using formala for the mean density of the Sun and the formula linking mean density and central density
-		varTwo = 1/dRSurface
-		varTwo = varTwo * dDbyDRSurface
-		varTwo = varTwo * -3
-		varThree = 3 * 1
-		varThree = varThree / (4*math.pi*1**3)
-		centDensity = varThree/varTwo
+		lITempOne = 1/dRSurface
+		lITempOne = lITempOne * dDbyDRSurface
+		lITempOne = lITempOne * -3
+		lITempTwo = 3 * 1
+		lITempTwo = lITempTwo / (4*math.pi*1**3)
+		centDensity = lITempTwo/lITempOne
 		i = math.log(centDensity)
 		
 		#we can now use the array from earlier and the already know relationship between (dDimensionlessDensity/dDimensionalessRadius)and dimensionless radius
@@ -103,34 +135,34 @@ for n in range(0,6):
 		#the loop will run every value of solar mass and solar radius for each value of dimensionless radius in the array 
 		
 		
-		for z in range(0, int(math.floor(dRSurface*1000))):
+		for m in range(0, int(math.floor(dRSurface*1000))):
 			#saving radius to a list for producing graph later (this is dimensionless radius x alpha)
-			radius = (dRArray[n][z]) * alpha
+			radius = (dRArray[n][m]) * alpha
 			radiusArray[n].append(radius)
 			#equation M = 4pi*alpha^3*ksi*(dTheta/dKsi)
-			varFour = (dRArray[n][z])**2 * firstDifArray[n][z]
-			varFour = varFour * centDensity
-			varFour = varFour * (-4*math.pi*alpha**3)
-			#varFour now equals M and so can be saved to the mass list
-			massArray[n].append(varFour)
+			mTemp = (dRArray[n][m])**2 * firstDifArray[n][m]
+			mTemp = mTemp * centDensity
+			mTemp = mTemp * (-4*math.pi*alpha**3)
+			#mTemp now equals M and so can be saved to the mass list
+			massArray[n].append(mTemp)
 			
 		#CALCULATING THE GRAPH FOR DENSITY VS RADIUS
 		
 		#radius from the previous array can be used
 		#central density must be changed to kg/m^3 this is done below
 		
-		varFive = 1/dRSurface
-		varFive = varFive * dDbyDRSurface
-		varFive = varFive * -3
-		varSix = 3 * (1.99*10**30)
-		varSix = varSix / (4*math.pi*695500000**3)
-		centDensityTwo = varSix/varFive
+		dTempOne = 1/dRSurface
+		dTempOne = dTempOne * dDbyDRSurface
+		dTempOne = dTempOne * -3
+		dTempTwo = 3 * (1.99*10**30)
+		dTempTwo = dTempTwo / (4*math.pi*695500000**3)
+		centDensityTwo = dTempTwo/dTempOne
 		
 		logDensityArray.append([])
 		
-		for o in range(0, int(math.floor(dRSurface*1000))):
+		for d in range(0, int(math.floor(dRSurface*1000))):
 			#now the conversion from dimensionless density to density can be made, density = dimensionless density^n * central density
-			density = ((dDArray[n][o])**n) * centDensityTwo
+			density = ((dDArray[n][d])**n) * centDensityTwo
 			logDensity = math.log10(density)
 			logDensityArray[n].append(logDensity)
 			
@@ -139,39 +171,52 @@ for n in range(0,6):
 		logPressureArray.append([])
 		
 		#first the constant K must be calculated which is done below 
-		#this calculation cannot be done for n = 0 as it involves an unavoidable division by zero 
+		#this calculation cannot be done for n = 0 as it involves an unavoidable division by zero
+		k = None 
 		if n!=0:
-			varSeven = 4*math.pi*(6.673*10**-11)
+			kTemp = 4*math.pi*(6.673*10**-11)
 			
-			varSeven = varSeven * centDensityTwo**((n-1)/n)
+			kTemp = kTemp * centDensityTwo**((n-1)/n)
 
-			varSeven = varSeven*alpha**2
+			kTemp = kTemp*alpha**2
 
-			k = (n+1)/varSeven
+			k = (n+1)/kTemp
 			
 			
 			for p in range(0, int(math.floor(dRSurface*1000))):
 				#now the equation relating pressure and dimensionless density can be used
-				varEight = (n+1)/n
-				pressure = k*(centDensityTwo**varEight)*(dDArray[n][p]**(n+1))
+				pTemp = (n+1)/n
+				pressure = k*(centDensityTwo**pTemp)*(dDArray[n][p]**(n+1))
 				logPressure = math.log10(pressure)
 				logPressureArray[n].append(logPressure)
 		else:
 			#empty string as placeholder for n = 0 
 			logPressureArray[n].append("")
 			
+		
 		#NOW TEMPERTURE VS RADIUS IS CALCULATED
-		#what is mu? find out from lecturer???????
+		logTemperatureArray.append([])
+		#equation simply uses variable we already know and constants
+		#T = Mh*mu*K*centDens^(1/n)*dimensionlessdens*(1/k)
+		#also requires constant K; n = 0 is once again omitted
+		if n!=0:
+			ttemp = (1.66*10**-27)*0.5954
+			ttemp = ttemp * k
+			ttemp = ttemp * (centDensity**(1/n))
+			ttemp = ttemp / (1.38*10**-23)
+			
+			for t in range(0,int(math.floor(dRSurface*1000))):
+				ttempLoop = ttemp * dDArray[n][t]
+				ttempLoop = math.log10(ttempLoop)
+				logTemperatureArray[n].append(ttempLoop)
+				
+		else:
+			#empty string as placeholder for n = 0
+			logTemperatureArray[n].append("")	
 		
-		#read in SSM using character loops to place each column in a seperate array
-		
-		
-		
-		
-		print massArray[n][1000]
-		print radiusArray[n][1000]
-		print logDensityArray[n][0]
 
+		
+#read in SSM using character loops to place each column in a seperate array
 sSMMass = []
 sSMRadius = []
 sSMTemp = []
@@ -197,7 +242,6 @@ for q in range(0,len(fileLines)):
 	for pA in range(1, 10):
 		one.append(readList[pA])
 		
-	print float("".join(one))
 	
 	sSMMass.append(float("".join(one)))
 	
@@ -323,9 +367,28 @@ ad.set_ylabel("log Pressure in N/m^2")
 ad.legend(loc=0)
 ad.set_title("log Pressure vs radius for the sun, compared with the SSM")
 plt.show()
+
+
 		
-		
+#plotting the temperature vs radius graph
+
+
+fig, aT = plt.subplots()
+
+aT.plot(radiusArray[1], logTemperatureArray[1], color = "orange", label = "n=1")
+aT.plot(radiusArray[2], logTemperatureArray[2], color = "green", label = "n=2")
+aT.plot(radiusArray[3], logTemperatureArray[3], color = "red", label = "n=3")
+aT.plot(radiusArray[4], logTemperatureArray[4], color = "blue", label = "n=4")
+aT.plot(sSMRadius, sSMTemp, color = "black", label = "SSM")
+
+aT.set_xlim(0,1)
+aT.set_ylim(3,9)
+aT.set_xlabel("Radius in solar radii")
+aT.set_ylabel("log Temperature in K")
+aT.legend(loc=0)
+aT.set_title("log Temperature vs radius for the sun, compared with the SSM")
+plt.show()
 	
 	
-		
+	
 
